@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>qunee</title>
+    <script src="js/qunee.min.js"></script>
+    <script src="./js/qunee-package.js"></script>
+    <style type="text/css">
+        html,body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<!--<div style="position: absolute;left: 50%;width: 20px;height: 20px;border-radius: 50%;background: red;margin-left: -10px;"></div>-->
+<div id="qunee" style="width: 100%;height: 100%;background: url(./img/idmapping2bg.png);background-size: 100% 100%;" ></div>
+
+<script type="text/javascript">
+    let json = {
+        nodes: [
+            {name: '', x: 0, y: 0, id: 1, symbol: 'defaultQQ', defaultSymbol: 'defaultQQ', selectSymbol: 'qq'},
+            {name: '', x: 0, y: 0, id: 2, symbol: 'defaultMac', defaultSymbol: 'defaultMac', selectSymbol: 'mac'},
+            {name: '', x: 0, y: 0, id: 3, symbol: 'defaultAddress', defaultSymbol: 'defaultAddress', selectSymbol: 'address'},
+            {name: '', x: 0, y: 0, id: 4, symbol: 'defaultUserId', defaultSymbol: 'defaultUserId', selectSymbol: 'userId'},
+            {name: '', x: 0, y: 0, id: 5, symbol: 'defaultPhone', defaultSymbol: 'defaultPhone', selectSymbol: 'phone'},
+            {name: '', x: 0, y: 0, id: 6, symbol: 'defaultPassport', defaultSymbol: 'defaultPassport', selectSymbol: 'passport'},
+            {name: '', x: 0, y: 0, id: 7, symbol: 'defaultPower', defaultSymbol: 'defaultPower', selectSymbol: 'power'},
+            {name: '', x: 0, y: 0, id: 8, symbol: 'defaultCar', defaultSymbol: 'defaultCar', selectSymbol: 'car'}
+        ],
+        edges: [
+            {name: '0.1', from: 1, to: 2, flag: 1},
+            {name: '0.2', from: 1, to: 3, flag: 0.5},
+            {name: '0.3', from: 1, to: 5, flag: 0.6},
+            {name: '0.5', from: 1, to: 4, flag: 1},
+            {name: '0.6', from: 1, to: 6, flag: 0.1},
+            {name: '0.7', from: 1, to: 7, flag: 1},
+            {name: '0.8', from: 1, to: 8, flag: 1}
+        ]
+    }
+
+    let qunee = new Qunee('qunee', json)
+    qunee.init()
+    // qunee.createNodes(json.nodes)
+    // qunee.createEdges(json.edges)
+    // qunee.bindEvent()
+    qunee.createPel()
+    qunee.addClick((data) => {
+        console.log(data, '========data')
+    })
+    qunee.addDblClick((data) => {
+        console.log(data, '========addDblClick')
+        let newData = createData(data)
+        qunee.createPel(newData, true)
+    })
+
+    function createData (data) {
+        let addJson = {
+            nodes: [
+                {name: '', x: 0, y: 0, id: 9, symbol: 'defaultCar', defaultSymbol: 'defaultCar', selectSymbol: 'car'}
+            ],
+            edges: [
+                {name: '0.7', from: 1, to: 9, flag: 1}
+            ]
+        }
+        addJson.nodes[0].id = parseInt(Math.random() * 1000)
+        addJson.edges[0].from = data.id
+        addJson.edges[0].to = addJson.nodes[0].id
+        let str = JSON.stringify(addJson)
+        return JSON.parse(str)
+    }
+</script>
+</body>
+</html>
