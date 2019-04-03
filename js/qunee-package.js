@@ -25,6 +25,11 @@ function Qunee (id, data) {
         shadowOffsetY: 0
     }
     this.showArrowTo = false
+    this.tooltip = {
+        show: true,
+        node: true,
+        edge: false
+    }
     this.imgData = {
         qq: './img/backgroundImg/qq.png',
         mac: './img/backgroundImg/mac.png',
@@ -78,6 +83,7 @@ Qunee.prototype = {
         let node = this.graph.createNode(data.name || '', data.x || 0, data.y || 0)
         node.image = data.symbol
         node.size = {width: 50}
+        // node.tooltip = this.createTooltip(data)
         this.selectStyle(node, 'node')
         node.set('data', data) // node.get('data') 用于获取数据
         this.node[data.id] = node
@@ -101,6 +107,7 @@ Qunee.prototype = {
         }
         this.selectStyle(edge)
         this.setEdge(edge, data.color)
+        edge.tooltip = ''
         edge.set('data', data)
     },
     // 创建多条线
@@ -108,6 +115,34 @@ Qunee.prototype = {
         Q.forEach(edges, (data) => {
             this.createEdge(data)
         })
+    },
+    // 创建提示框
+    createTooltip (data, top, left) {
+        let tooltipDom = `<div style="color:#00FFEB;font-weight:bold;font-size:13px">${data.type}</div><div style="color: #fff;font-size: 12px">${data.value}</div>`
+        let tooltipParent = document.getElementsByClassName('Q-tooltip-update')[0]
+        tooltipParent.innerHTML = tooltipDom
+        tooltipParent.style.display = 'flex'
+        tooltipParent.style.top = top + 'px'
+        tooltipParent.style.left = left + 'px'
+    },
+    hideTooltip () {
+        let tooltipParent = document.getElementsByClassName('Q-tooltip-update')[0]
+        if (tooltipParent && tooltipParent.style) {
+            tooltipParent.style.display = 'none'
+        }
+    },
+    setTooltip () {
+        if (this.tooltip.show) {
+            let dom = document.getElementById(this.id)
+            let ele = document.createElement('div')
+            ele.className = 'Q-tooltip-update'
+            ele.style.cssText= `display: none;background: url('./img/tooltip.png');border: none;background-size: 100% 100%;position: absolute;top: 40px;left: 100px;flex-direction: column;justify-content: center;align-items: flex-start;height: 70px;min-width: 60px;max-width: 168px;padding: 0 20px;color: #ffffff;`
+            dom.appendChild(ele)
+        } else {
+            this.graph.enableTooltip = false
+            this.graph.tooltipDelay = 0
+            this.graph.tooltipDuration = 10000
+        }
     },
     // 创建图谱 => 先创建点，然后创建线
     createPel (data = this.quneeData, state = false) {
@@ -229,6 +264,10 @@ Qunee.prototype = {
         this.graph.callLater(() => {
             this.autoLayout()
             this.graph.centerTo(0, 0, 1.5)
+            // 下面代码用于隐藏 组件的一些默认文字
+            let canvasDom = document.getElementsByClassName('Q-Canvas')[1]
+            canvasDom.style.display = 'none'
+            this.setTooltip()
         })
         this.graph.onlongpress = (evt) => {
             let ui = this.graph.getUIByMouseEvent(evt)
@@ -243,17 +282,23 @@ Qunee.prototype = {
         this.graph.onmousemove  = (evt) => {
             let node = evt.getData()
             let target = this.graph.hitTest(evt)
+            this.hideTooltip()
             if (target instanceof Q.LabelUI) {
                 // 验证点的是不是label
                 console.log('文字')
+                this.graph.enableTooltip = this.tooltip.edge
             }
             if (node instanceof Q.Node) {
                 // 验证点的是不是节点
                 console.log('节点')
+                let p = this.graph.globalToLocal(evt)
+                this.graph.enableTooltip = this.tooltip.node
+                this.createTooltip(node.get('data'), p.y + 30, p.x + 30)
             }
             if (node instanceof Q.Edge) {
                 // 验证点的是不是线
                 console.log('线')
+                this.graph.enableTooltip = this.tooltip.edge
             }
         }
 
@@ -311,6 +356,6 @@ Qunee.prototype = {
 
     },
     showNodeAndEdge (node) {
-        this.model.isVisible(false)
+        // this.model.isVisible(false)
     }
 }

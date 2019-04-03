@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>qunee</title>
+    <script src="./js/jquery.js"></script>
     <script src="js/qunee.min.js"></script>
     <script src="./js/qunee-package.js"></script>
     <style type="text/css">
@@ -11,23 +12,41 @@
             margin: 0;
             padding: 0;
         }
+
+        .Q-Tooltip {
+            background: url('./img/tooltip.png');
+            border: none;
+            background-size: 100% 100%;
+            position: absolute;
+            top: 40px;
+            left: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            height: 70px;
+            min-width: 60px;
+            max-width: 168px;
+            padding: 0 20px;
+            box-shadow: none;
+            color: #ffffff;
+        }
     </style>
 </head>
 <body>
 <!--<div style="position: absolute;left: 50%;width: 20px;height: 20px;border-radius: 50%;background: red;margin-left: -10px;"></div>-->
 <div id="qunee" style="width: 100%;height: 100%;background: url(./img/idmapping2bg.png);background-size: 100% 100%;" ></div>
-
 <script type="text/javascript">
     let json = {
         nodes: [
-            {name: '', x: 0, y: 0, id: 1, symbol: 'defaultQQ', defaultSymbol: 'defaultQQ', selectSymbol: 'qq'},
-            {name: '', x: 0, y: 0, id: 2, symbol: 'defaultMac', defaultSymbol: 'defaultMac', selectSymbol: 'mac'},
-            {name: '', x: 0, y: 0, id: 3, symbol: 'defaultAddress', defaultSymbol: 'defaultAddress', selectSymbol: 'address'},
-            {name: '', x: 0, y: 0, id: 4, symbol: 'defaultUserId', defaultSymbol: 'defaultUserId', selectSymbol: 'userId'},
-            {name: '', x: 0, y: 0, id: 5, symbol: 'defaultPhone', defaultSymbol: 'defaultPhone', selectSymbol: 'phone'},
-            {name: '', x: 0, y: 0, id: 6, symbol: 'defaultPassport', defaultSymbol: 'defaultPassport', selectSymbol: 'passport'},
-            {name: '', x: 0, y: 0, id: 7, symbol: 'defaultPower', defaultSymbol: 'defaultPower', selectSymbol: 'power'},
-            {name: '', x: 0, y: 0, id: 8, symbol: 'defaultCar', defaultSymbol: 'defaultCar', selectSymbol: 'car'}
+            {name: '', x: 0, y: 0, id: 1, symbol: 'defaultQQ', defaultSymbol: 'defaultQQ', selectSymbol: 'qq', type: 'qq', value: '975156324'},
+            {name: '', x: 0, y: 0, id: 2, symbol: 'defaultMac', defaultSymbol: 'defaultMac', selectSymbol: 'mac', type: 'qq', value: '975156324'},
+            {name: '', x: 0, y: 0, id: 3, symbol: 'defaultAddress', defaultSymbol: 'defaultAddress', selectSymbol: 'address', type: '地址', value: '河北'},
+            {name: '', x: 0, y: 0, id: 4, symbol: 'defaultUserId', defaultSymbol: 'defaultUserId', selectSymbol: 'userId', type: '用户ID', value: '123498'},
+            {name: '', x: 0, y: 0, id: 5, symbol: 'defaultPhone', defaultSymbol: 'defaultPhone', selectSymbol: 'phone', type: '手机号', value: '15733112788'},
+            {name: '', x: 0, y: 0, id: 6, symbol: 'defaultPassport', defaultSymbol: 'defaultPassport', selectSymbol: 'passport', type: 'passport', value: '7894425551'},
+            {name: '', x: 0, y: 0, id: 7, symbol: 'defaultPower', defaultSymbol: 'defaultPower', selectSymbol: 'power', type: 'power', value: '45896254'},
+            {name: '', x: 0, y: 0, id: 8, symbol: 'defaultCar', defaultSymbol: 'defaultCar', selectSymbol: 'car', type: '车牌号', value: '浙A12345'}
         ],
         edges: [
             {name: '0.1', from: 1, to: 2, flag: 1},
