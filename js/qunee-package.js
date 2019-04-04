@@ -4,7 +4,7 @@ function Qunee (id, data) {
     this.model = undefined
     this.quneeData = data || []
     this.node = {}
-    // this.edge = []
+    this.edge = {}
     this.edgeStyle = {
         width: 2,
         defaultColor: '#fff',
@@ -109,6 +109,10 @@ Qunee.prototype = {
         this.setEdge(edge, data.color)
         edge.tooltip = ''
         edge.set('data', data)
+        if (!this.edge[data.from]) {
+            this.edge[data.from] = {}
+        }
+        this.edge[data.from][data.to] = edge
     },
     // 创建多条线
     createEdges (edges) {
@@ -151,7 +155,6 @@ Qunee.prototype = {
             data = this.filterData(data)
             if (data.nodes.length > 0 || data.edges.length > 0) {
                 data = this.updateData(data)
-                console.log(data)
                 this.addData(data, false)
             }
             this.createNodes(data.nodes)
@@ -159,7 +162,6 @@ Qunee.prototype = {
             this.autoLayout()
         } else {
             data = this.updateData(data)
-            console.log(this.quneeData)
             // this.quneeData = data
             this.createNodes(data.nodes)
             this.createEdges(data.edges)
@@ -224,17 +226,14 @@ Qunee.prototype = {
     },
     addClick (callback) {
         this.graph.onclick = (evt) => {
-            console.log(evt)
             let target = this.graph.hitTest(evt)
             // let nodeDom = this.graph.getElementByMouseEvent(evt)
             let node = evt.getData()
-            console.log(node)
             if (target instanceof Q.LabelUI) {
                 // 验证点的是不是label
                 callback(evt.getData()._mj5.data)
             }
             if (node instanceof Q.Node) {
-                this.showNodeAndEdge(node)
                 // 验证点的是不是节点
                 // this.resetImg()
                 // node.image = node.get('data').selectSymbol
@@ -261,6 +260,7 @@ Qunee.prototype = {
     },
     // 用于绑定全局事情
     bindEvent () {
+        // 初次画图完成后的回调
         this.graph.callLater(() => {
             this.autoLayout()
             this.graph.centerTo(0, 0, 1.5)
@@ -269,6 +269,7 @@ Qunee.prototype = {
             canvasDom.style.display = 'none'
             this.setTooltip()
         })
+        // 监听鼠标长按事情
         this.graph.onlongpress = (evt) => {
             let ui = this.graph.getUIByMouseEvent(evt)
             this.resetNodeStyle()
@@ -279,29 +280,38 @@ Qunee.prototype = {
                 console.log(evt, '111111111111111111')
             }
         }) */
+        // 监听鼠标移动事情
         this.graph.onmousemove  = (evt) => {
             let node = evt.getData()
             let target = this.graph.hitTest(evt)
             this.hideTooltip()
+            this.showNodeAndEdge()
             if (target instanceof Q.LabelUI) {
                 // 验证点的是不是label
-                console.log('文字')
                 this.graph.enableTooltip = this.tooltip.edge
             }
             if (node instanceof Q.Node) {
                 // 验证点的是不是节点
-                console.log('节点')
+                this.toggleNode(node)
                 let p = this.graph.globalToLocal(evt)
                 this.graph.enableTooltip = this.tooltip.node
                 this.createTooltip(node.get('data'), p.y + 30, p.x + 30)
             }
             if (node instanceof Q.Edge) {
                 // 验证点的是不是线
-                console.log('线')
+                this.toggleEdge(node)
                 this.graph.enableTooltip = this.tooltip.edge
             }
         }
-
+        // 监听鼠标拖动中事情
+        this.graph.ondrag = (evt) => {
+            this.hideTooltip()
+            let node = evt.getData()
+            if (node instanceof Q.Node) {
+                let p = this.graph.globalToLocal(evt)
+                this.createTooltip(node.get('data'), p.y + 30, p.x + 30)
+            }
+        }
     },
     // 改方法用于还原数据成默认图片
     resetImg () {
@@ -349,13 +359,60 @@ Qunee.prototype = {
             }
             return item
         })
-        console.log(data)
         return data
     },
-    hideNodeAndEdge () {
-
+    // 用于设置全部元素的可见度
+    setNodeAndEdge (opacity = 0.1) {
+        let nodeKey = Object.keys(this.node)
+        Q.forEach(nodeKey, (key) => {
+            this.node[key].setStyle(Q.Styles.ALPHA, opacity)
+        })
+        let edgesKey = Object.keys(this.edge)
+        Q.forEach(edgesKey, (key) => {
+            let childEdgesKey = Object.keys(this.edge[key])
+            Q.forEach(childEdgesKey, (childKey) => {
+                this.edge[key][childKey].setStyle(Q.Styles.ALPHA, opacity)
+            })
+        })
     },
-    showNodeAndEdge (node) {
-        // this.model.isVisible(false)
+    // 显示全部节点和线
+    showNodeAndEdge () {
+        this.setNodeAndEdge(1)
+    },
+    // 隐藏全部节点和线
+    hideNodeAndEdge () {
+        this.setNodeAndEdge(0.1)
+    },
+    // 显示相关联的节点，非关联的不显示
+    toggleNode (node) {
+        this.hideNodeAndEdge()
+        let data = node.get('data')
+        let edges = this.edge[data.id]
+        this.node[data.id].setStyle(Q.Styles.ALPHA, 1)
+        if (edges) {
+            let edgesChildKey = Object.keys(this.edge[data.id])
+            Q.forEach(edgesChildKey, (key) => {
+                this.edge[data.id][key].setStyle(Q.Styles.ALPHA, 1)
+                this.node[key].setStyle(Q.Styles.ALPHA, 1)
+            })
+        }
+        let edgesKey = Object.keys(this.edge)
+        Q.forEach(edgesKey, (key) => {
+            let childEdgesKey = Object.keys(this.edge[key])
+            Q.forEach(childEdgesKey, (childKey) => {
+                if (childKey === data.id || childKey === JSON.stringify(data.id)) {
+                    this.edge[key][childKey].setStyle(Q.Styles.ALPHA, 1)
+                    this.node[key].setStyle(Q.Styles.ALPHA, 1)
+                }
+            })
+        })
+    },
+    // 显示相关联的线，非关联的不显示
+    toggleEdge (edge) {
+        this.hideNodeAndEdge()
+        let data = edge.get('data')
+        this.edge[data.from][data.to].setStyle(Q.Styles.ALPHA, 1)
+        this.node[data.from].setStyle(Q.Styles.ALPHA, 1)
+        this.node[data.to].setStyle(Q.Styles.ALPHA, 1)
     }
 }
