@@ -59,7 +59,27 @@
         ]
     }
 
-    let qunee = new Qunee('qunee', json)
+    let params = {
+        imgData: {
+            qq: './img/backgroundImg/qq.png',
+            mac: './img/backgroundImg/mac.png',
+            address: './img/backgroundImg/address.png',
+            userId: './img/backgroundImg/userId.png',
+            phone: './img/backgroundImg/phone.png',
+            passport: './img/backgroundImg/passport.png',
+            power: './img/backgroundImg/power.png',
+            car: './img/backgroundImg/car.png',
+            defaultQQ: './img/backgroundImg/default_qq.png',
+            defaultMac: './img/backgroundImg/default_mac.png',
+            defaultAddress: './img/backgroundImg/default_address.png',
+            defaultUserId: './img/backgroundImg/default_userId.png',
+            defaultPhone: './img/backgroundImg/default_phone.png',
+            defaultPassport: './img/backgroundImg/default_passport.png',
+            defaultPower: './img/backgroundImg/default_power.png',
+            defaultCar: './img/backgroundImg/default_car.png'
+        }
+    }
+    let qunee = new Qunee('qunee', json, params)
     qunee.init()
     // qunee.createNodes(json.nodes)
     // qunee.createEdges(json.edges)

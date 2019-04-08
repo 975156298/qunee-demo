@@ -44,7 +44,8 @@ function Qunee (id, data, params = {}) {
         shadowOffsetY: 0,
         ...params.selectEdgeStyle
     }
-    this.showArrowTo = false || params.showArrowTo // 是否显示箭头，false 不显示
+    // 是否显示箭头，false 不显示
+    this.showArrowTo = params.showArrowTo || false
     this.tooltip = {
         show: true, // true 显示自己书写的tooltip，false 显示组件自带tooltip（不推荐使用）
         node: true, // 是否显示node tooltip
@@ -52,24 +53,7 @@ function Qunee (id, data, params = {}) {
         ...params.tooltip
     }
     // 该参数代表需要转换的图片。
-    this.imgData = {
-        qq: './img/backgroundImg/qq.png',
-        mac: './img/backgroundImg/mac.png',
-        address: './img/backgroundImg/address.png',
-        userId: './img/backgroundImg/userId.png',
-        phone: './img/backgroundImg/phone.png',
-        passport: './img/backgroundImg/passport.png',
-        power: './img/backgroundImg/power.png',
-        car: './img/backgroundImg/car.png',
-        defaultQQ: './img/backgroundImg/default_qq.png',
-        defaultMac: './img/backgroundImg/default_mac.png',
-        defaultAddress: './img/backgroundImg/default_address.png',
-        defaultUserId: './img/backgroundImg/default_userId.png',
-        defaultPhone: './img/backgroundImg/default_phone.png',
-        defaultPassport: './img/backgroundImg/default_passport.png',
-        defaultPower: './img/backgroundImg/default_power.png',
-        defaultCar: './img/backgroundImg/default_car.png',
-    } || params.imgData
+    this.imgData = params.imgData || {}
     // label 用于对数据的字段名进行转换后，适应组件的字段名
     this.label = {
         enable: true, // 代表是否启用字段名转换。默认启动（true）
