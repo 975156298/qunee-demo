@@ -14,6 +14,7 @@
 * label : 用于替换源数据的字段名。 包括node 和 edge 字段名（只推荐替换全局相关的，不推荐替换 node 和 edge 字段名），但推荐使用 nodeLabel、edgeLabel替换。
 * nodeLabel : 用于替换源数据的node字段名
 * edgeLabel : 用于替换源数据的edge字段名
+* layout : 设置自动布局 balloon => 气泡布局；spring => 弹性布局
 *
 * */
 function Qunee (id, data, params = {}) {
@@ -89,6 +90,7 @@ function Qunee (id, data, params = {}) {
         edge: {name: 'name', from: 'from', to: 'to', flag: 'flag', ...params.edgeLabel},
         ...params.label
     }
+    this.layout = 'spring' || params.layout
     // 不可传参修改的参数
     this.graph = undefined  // qunee 对象
     this.model = undefined  // qunee model 对象
@@ -108,22 +110,26 @@ Qunee.prototype = {
         this.bindEvent()
     },
     // 自动布局
-    autoLayout (state = 'balloon') {
+    autoLayout (state = this.layout) {
         // balloon => 气泡布局；spring => 弹性布局
         if (state === 'spring') {
             let layouter = new Q.SpringLayouter(this.graph)
-            layouter.repulsion = 100
+            layouter.repulsion = 150
             layouter.attractive = 1
-            layouter.elastic = 0.1
+            layouter.elastic = 10
             layouter.start()
         }
         if (state === 'balloon') {
             let layouter = new Q.BalloonLayouter(this.graph)
-            layouter.radiusMode = Q.Consts.RADIUS_MODE_UNIFORM
-            layouter.radius = 100
+            // layouter.radiusMode = Q.Consts.RADIUS_MODE_VARIABLE
+            // layouter.angleSpacing = Q.Consts.ANGLE_SPACING_REGULAR
+            layouter.radius = 40
+            layouter.gap = 50
             layouter.startAngle = Math.PI / 4
             layouter.doLayout({
+                // byAnimate: true,
                 callback: function () {
+                    // this.graph.zoomToOverview()
                 }
             })
         }
