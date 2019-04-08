@@ -1,35 +1,56 @@
-function Qunee (id, data) {
-    this.id = id
-    this.graph = undefined
-    this.model = undefined
-    this.quneeData = data || []
-    this.node = {}
-    this.edge = {}
+//
+/*
+*  说明： node 代表节点， edge 代表线。
+*
+*  new Qunee 参数说明
+*  id : 相应dom元素的id, 必填
+*  data : 显示的数据。
+* edgeStyle : edge（线）的基本样式。
+* selectNodeStyle :  选中node（节点）的样式
+* selectEdgeStyle : 选中edge（线）的样式
+* showArrowTo : 是否显示箭头，false 不显示
+* tooltip : 提示框相关参数
+* imgData : 需要转换的图片。传入图片默认进行转换
+* label : 用于替换源数据的字段名。 包括node 和 edge 字段名（只推荐替换全局相关的，不推荐替换 node 和 edge 字段名），但推荐使用 nodeLabel、edgeLabel替换。
+* nodeLabel : 用于替换源数据的node字段名
+* edgeLabel : 用于替换源数据的edge字段名
+*
+* */
+function Qunee (id, data, params = {}) {
+    this.id = id // 相应dom元素的id
+    // edge（线）的基本样式。
     this.edgeStyle = {
         width: 2,
         defaultColor: '#fff',
         selectColor: '#05ffea',
         shadowBlur: 7,
-        showShadow: true
+        showShadow: true,
+        ...params.edgeStyle
     }
+    // 选中node（节点）的样式
     this.selectNodeStyle = {
         shadowBlur: 7,
         color: '#05ffea',
         shadowOffsetX: 0,
-        shadowOffsetY: 0
+        shadowOffsetY: 0,
+        ...params.selectNodeStyle
     }
+    // 选中edge（线）的样式
     this.selectEdgeStyle = {
         shadowBlur: 0,
         color: '',
         shadowOffsetX: 0,
-        shadowOffsetY: 0
+        shadowOffsetY: 0,
+        ...params.selectEdgeStyle
     }
-    this.showArrowTo = false
+    this.showArrowTo = false || params.showArrowTo // 是否显示箭头，false 不显示
     this.tooltip = {
-        show: true,
-        node: true,
-        edge: false
+        show: true, // true 显示自己书写的tooltip，false 显示组件自带tooltip（不推荐使用）
+        node: true, // 是否显示node tooltip
+        edge: false, // 是否显示edge tooltip
+        ...params.tooltip
     }
+    // 该参数代表需要转换的图片。
     this.imgData = {
         qq: './img/backgroundImg/qq.png',
         mac: './img/backgroundImg/mac.png',
@@ -47,11 +68,40 @@ function Qunee (id, data) {
         defaultPassport: './img/backgroundImg/default_passport.png',
         defaultPower: './img/backgroundImg/default_power.png',
         defaultCar: './img/backgroundImg/default_car.png',
+    } || params.imgData
+    // label 用于对数据的字段名进行转换后，适应组件的字段名
+    this.label = {
+        enable: true, // 代表是否启用字段名转换。默认启动（true）
+        nodes: 'nodes', // 代表包含node的大对象名
+        edges: 'edges', // 代表包含 edges 的大对象名
+        node: {
+            name: 'name',
+            x: 'x',
+            y: 'y',
+            id: 'id',
+            symbol: 'symbol',
+            defaultSymbol: 'defaultSymbol',
+            selectSymbol: 'selectSymbol',
+            type: 'type',
+            value: 'value',
+            ...params.nodeLabel
+        },
+        edge: {name: 'name', from: 'from', to: 'to', flag: 'flag', ...params.edgeLabel},
+        ...params.label
     }
+    // 不可传参修改的参数
+    this.graph = undefined  // qunee 对象
+    this.model = undefined  // qunee model 对象
+    this.quneeData = data || {} // 传入的数据
+    this.node = {} // 保存节点的数据 {id: node节点}
+    this.edge = {} // 保存先数据 { form: { to: edge数据 }}
 }
 
 Qunee.prototype = {
     init () {
+        if (this.label.enable) {
+            this.quneeData = this.createNewData()
+        }
         this.graph = new Q.Graph(this.id)
         this.model = this.graph.graphModel
         this.createImg(this.imgData)
@@ -73,7 +123,8 @@ Qunee.prototype = {
             layouter.radius = 100
             layouter.startAngle = Math.PI / 4
             layouter.doLayout({
-                callback: function () {}
+                callback: function () {
+                }
             })
         }
     },
@@ -96,9 +147,9 @@ Qunee.prototype = {
     },
     // 创建单条线
     createEdge (data) {
-        let from =  this.node[data.from]
-        let to =  this.node[data.to]
-        if(!from || !to){
+        let from = this.node[data.from]
+        let to = this.node[data.to]
+        if (!from || !to) {
             return
         }
         let edge = this.graph.createEdge(data.name, from, to)
@@ -140,7 +191,7 @@ Qunee.prototype = {
             let dom = document.getElementById(this.id)
             let ele = document.createElement('div')
             ele.className = 'Q-tooltip-update'
-            ele.style.cssText= `display: none;background: url('./img/tooltip.png');border: none;background-size: 100% 100%;position: absolute;top: 40px;left: 100px;flex-direction: column;justify-content: center;align-items: flex-start;height: 70px;min-width: 60px;max-width: 168px;padding: 0 20px;color: #ffffff;`
+            ele.style.cssText = `display: none;background: url('./img/tooltip.png');border: none;background-size: 100% 100%;position: absolute;top: 40px;left: 100px;flex-direction: column;justify-content: center;align-items: flex-start;height: 70px;min-width: 60px;max-width: 168px;padding: 0 20px;color: #ffffff;`
             dom.appendChild(ele)
         } else {
             this.graph.enableTooltip = false
@@ -168,7 +219,11 @@ Qunee.prototype = {
         }
     },
     // 线的样式
-    setEdge (edge, color = this.edgeStyle.defaultColor, data = {width: this.edgeStyle.width, shadowBlur: this.edgeStyle.shadowBlur, showShadow: this.edgeStyle.showShadow}) {
+    setEdge (edge, color = this.edgeStyle.defaultColor, data = {
+        width: this.edgeStyle.width,
+        shadowBlur: this.edgeStyle.shadowBlur,
+        showShadow: this.edgeStyle.showShadow
+    }) {
         edge.setStyle(Q.Styles.EDGE_COLOR, color)
         edge.setStyle(Q.Styles.EDGE_WIDTH, data.width)
         edge.setStyle(Q.Styles.LABEL_COLOR, color)
@@ -195,6 +250,7 @@ Qunee.prototype = {
         dom.setStyle(Q.Styles.SELECTION_COLOR, style.color || '#8F8')
         dom.setStyle(Q.Styles.SELECTION_SHADOW_OFFSET_X, style.shadowOffsetX || 0)
         dom.setStyle(Q.Styles.SELECTION_SHADOW_OFFSET_Y, style.shadowOffsetY || 0)
+        dom.setStyle(Q.Styles.BACKGROUND_COLOR, 'transparent')
     },
     // 选中节点或线的样式 进行扩展出来的功能。由于默认select的样式存在，如果需要点击节点选中而点击其他非节点区域不恢复默认默认样式时，则可以使用该方法
     // 该方法必须与 selectStyle 同时使用。并且两者颜色一致。
@@ -252,7 +308,7 @@ Qunee.prototype = {
     addDblClick (callback) {
         this.graph.ondblclick = (evt) => {
             let node = this.graph.getElementByMouseEvent(evt)
-            if (node instanceof  Q.Node) {
+            if (node instanceof Q.Node) {
                 // 验证点的是不是节点
                 callback(evt.getData()._mj5.data)
             }
@@ -281,7 +337,7 @@ Qunee.prototype = {
             }
         }) */
         // 监听鼠标移动事情
-        this.graph.onmousemove  = (evt) => {
+        this.graph.onmousemove = (evt) => {
             let node = evt.getData()
             let target = this.graph.hitTest(evt)
             this.hideTooltip()
@@ -414,5 +470,60 @@ Qunee.prototype = {
         this.edge[data.from][data.to].setStyle(Q.Styles.ALPHA, 1)
         this.node[data.from].setStyle(Q.Styles.ALPHA, 1)
         this.node[data.to].setStyle(Q.Styles.ALPHA, 1)
+    },
+    // 用于整合数据的字段名。该方法只能由组件自己调用，外部慎用。
+    createNewData (data = this.quneeData) {
+        let key = Object.keys(data)
+        if (key.length > 0) {
+            let newData = {
+                nodes: [],
+                edges: []
+            }
+            newData.nodes = data[this.label.nodes].map((item) => {
+                let label = this.label.node
+                let val = {}
+                val.name = item[label.name]
+                val.x = item[label.x] || 0
+                val.y = item[label.y] || 0
+                val.id = item[label.id]
+                val.symbol = item[label.symbol] || ''
+                val.defaultSymbol = item[label.defaultSymbol] || ''
+                val.selectSymbol = item[label.selectSymbol] || ''
+                val.type = item[label.type] || ''
+                val.value = item[label.value] || ''
+                val = {
+                    ...val,
+                    ...this.getObjectVal(item, Object.keys(this.label.nodes))
+                }
+                return val
+            })
+            newData.edges = data[this.label.edges].map((item) => {
+                let label = this.label.edge
+                let val = {}
+                val.name = item[label.name]
+                val.from = item[label.from] || 0
+                val.to = item[label.to] || 0
+                val.flag = item[label.flag]
+                val = {
+                    ...val,
+                    ...this.getObjectVal(item, Object.keys(this.label.edges))
+                }
+                return val
+            })
+            return newData
+        } else {
+            return data
+        }
+    },
+    // 用于获取对象剩下的值。
+    getObjectVal (data, key = ['name', 'x', 'y', 'id', 'symbol', 'defaultSymbol', 'selectSymbol', 'type', 'value']) {
+        let val = {}
+        let valKey = Object.keys(data)
+        Q.forEach(valKey, (keyItem) => {
+            if (key.indexOf(keyItem) === -1) {
+                val[keyItem] = data[keyItem]
+            }
+        })
+        return val
     }
 }
