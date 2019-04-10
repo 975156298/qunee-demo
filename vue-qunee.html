@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>vue-qunee-demo</title>
+    <style type="text/css">
+        html,body, #app{
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div id="qunee" style="width: 100%;height: 100%;background: url(./img/idmapping2bg.png);background-size: 100% 100%;" ></div>
+</div>
+<script src="./js/vue.min.js"></script>
+<script src="js/qunee.min.js"></script>
+<script src="./js/qunee-package.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data () {
+            return {
+                json: {
+                    nodes: [
+                        {name: '', x: 0, y: 0, id: 1, symbol: 'defaultQQ', defaultSymbol: 'defaultQQ', selectSymbol: 'qq', type: 'qq', value: '975156324'},
+                        {name: '', x: 0, y: 0, id: 2, symbol: 'defaultMac', defaultSymbol: 'defaultMac', selectSymbol: 'mac', type: 'qq', value: '975156324'},
+                        {name: '', x: 0, y: 0, id: 3, symbol: 'defaultAddress', defaultSymbol: 'defaultAddress', selectSymbol: 'address', type: '地址', value: '河北'},
+                        {name: '', x: 0, y: 0, id: 4, symbol: 'defaultUserId', defaultSymbol: 'defaultUserId', selectSymbol: 'userId', type: '用户ID', value: '123498'},
+                        {name: '', x: 0, y: 0, id: 5, symbol: 'defaultPhone', defaultSymbol: 'defaultPhone', selectSymbol: 'phone', type: '手机号', value: '15733112788'},
+                        {name: '', x: 0, y: 0, id: 6, symbol: 'defaultPassport', defaultSymbol: 'defaultPassport', selectSymbol: 'passport', type: 'passport', value: '7894425551'},
+                        {name: '', x: 0, y: 0, id: 7, symbol: 'defaultPower', defaultSymbol: 'defaultPower', selectSymbol: 'power', type: 'power', value: '45896254'},
+                        {name: '', x: 0, y: 0, id: 8, symbol: 'defaultCar', defaultSymbol: 'defaultCar', selectSymbol: 'car', type: '车牌号', value: '浙A12345'}
+                    ],
+                    edges: [
+                        {name: '0.1', from: 1, to: 2, flag: 1},
+                        {name: '0.2', from: 1, to: 3, flag: 0.5},
+                        {name: '0.3', from: 1, to: 5, flag: 0.6},
+                        {name: '0.5', from: 1, to: 4, flag: 1},
+                        {name: '0.6', from: 1, to: 6, flag: 0.1},
+                        {name: '0.7', from: 1, to: 7, flag: 1},
+                        {name: '0.8', from: 1, to: 8, flag: 1}
+                    ]
+                },
+                params: {
+                    imgData: {
+                        qq: './img/backgroundImg/qq.png',
+                        mac: './img/backgroundImg/mac.png',
+                        address: './img/backgroundImg/address.png',
+                        userId: './img/backgroundImg/userId.png',
+                        phone: './img/backgroundImg/phone.png',
+                        passport: './img/backgroundImg/passport.png',
+                        power: './img/backgroundImg/power.png',
+                        car: './img/backgroundImg/car.png',
+                        defaultQQ: './img/backgroundImg/default_qq.png',
+                        defaultMac: './img/backgroundImg/default_mac.png',
+                        defaultAddress: './img/backgroundImg/default_address.png',
+                        defaultUserId: './img/backgroundImg/default_userId.png',
+                        defaultPhone: './img/backgroundImg/default_phone.png',
+                        defaultPassport: './img/backgroundImg/default_passport.png',
+                        defaultPower: './img/backgroundImg/default_power.png',
+                        defaultCar: './img/backgroundImg/default_car.png'
+                    }
+                }
+            }
+        },
+        mounted () {
+            let qunee = new Qunee('qunee', this.json, this.params)
+            qunee.init()
+            qunee.createPel()
+            qunee.addClick((data) => {
+                console.log(data, '========data')
+            })
+            qunee.addDblClick((data) => {
+                console.log(data, '========addDblClick')
+                let newData = this.createData(data)
+                qunee.createPel(newData, true)
+            })
+        },
+        methods: {
+            createData (data) {
+                let addJson = {
+                    nodes: [
+                        {name: '', x: 0, y: 0, id: 9, symbol: 'defaultCar', defaultSymbol: 'defaultCar', selectSymbol: 'car', type: '车牌号', value: '浙A12345'}
+                    ],
+                    edges: [
+                        {name: '0.7', from: 1, to: 9, flag: 1}
+                    ]
+                }
+                addJson.nodes[0].id = parseInt(Math.random() * 1000)
+                addJson.edges[0].from = data.id
+                addJson.edges[0].to = addJson.nodes[0].id
+                let str = JSON.stringify(addJson)
+                return JSON.parse(str)
+            }
+        }
+    })
+</script>
+</body>
+</html>
