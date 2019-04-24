@@ -163,12 +163,28 @@ Qunee.prototype = {
     },
     // 创建提示框
     createTooltip (data, top, left) {
-        let tooltipDom = `<div style="color:#00FFEB;font-weight:bold;font-size:13px">${data.type}</div><div style="color: #fff;font-size: 12px">${data.value}</div>`
-        let tooltipParent = document.getElementsByClassName('Q-tooltip-update')[0]
-        tooltipParent.innerHTML = tooltipDom
-        tooltipParent.style.display = 'flex'
-        tooltipParent.style.top = top + 'px'
-        tooltipParent.style.left = left + 'px'
+        if (data.type === '车牌号') {
+            let tooltipDom = `<div style="display: flex;">
+                                <div style="color:#00FFEB;font-weight:bold;font-size:13px">车辆分类:&nbsp;</div>
+                                <div style="color: #fff;font-size: 12px">${data.subclass || '暂无'}</div>
+                              </div>
+                              <div style="display: flex;">
+                                <div style="color:#00FFEB;font-weight:bold;font-size:13px">${data.type}:&nbsp;</div>
+                                <div style="color: #fff;font-size: 12px">${data.value}</div>
+                              </div>`
+            let tooltipParent = document.getElementsByClassName('Q-tooltip-update')[0]
+            tooltipParent.innerHTML = tooltipDom
+            tooltipParent.style.display = 'flex'
+            tooltipParent.style.top = top + 'px'
+            tooltipParent.style.left = left + 'px'
+        } else {
+            let tooltipDom = `<div style="color:#00FFEB;font-weight:bold;font-size:13px">${data.type}</div><div style="color: #fff;font-size: 12px">${data.value}</div>`
+            let tooltipParent = document.getElementsByClassName('Q-tooltip-update')[0]
+            tooltipParent.innerHTML = tooltipDom
+            tooltipParent.style.display = 'flex'
+            tooltipParent.style.top = top + 'px'
+            tooltipParent.style.left = left + 'px'
+        }
     },
     hideTooltip () {
         let tooltipParent = document.getElementsByClassName('Q-tooltip-update')[0]
