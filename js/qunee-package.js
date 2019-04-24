@@ -69,6 +69,7 @@ function Qunee (id, data, params = {}) {
             selectSymbol: 'selectSymbol',
             type: 'type',
             value: 'value',
+            subclass: 'subclass',
             ...params.nodeLabel
         },
         edge: {name: 'name', from: 'from', to: 'to', flag: 'flag', ...params.edgeLabel},
@@ -497,6 +498,7 @@ Qunee.prototype = {
                 val.selectSymbol = item[label.selectSymbol] || ''
                 val.type = item[label.type] || ''
                 val.value = item[label.value] || ''
+                val.subclass = item[label.subclass] || ''
                 val = {
                     ...val,
                     ...this.getObjectVal(item, Object.keys(this.label.nodes))
@@ -522,7 +524,7 @@ Qunee.prototype = {
         }
     },
     // 用于获取对象剩下的值。
-    getObjectVal (data, key = ['name', 'x', 'y', 'id', 'symbol', 'defaultSymbol', 'selectSymbol', 'type', 'value']) {
+    getObjectVal (data, key = ['name', 'x', 'y', 'id', 'symbol', 'defaultSymbol', 'selectSymbol', 'type', 'value', 'subclass']) {
         let val = {}
         let valKey = Object.keys(data)
         Q.forEach(valKey, (keyItem) => {
